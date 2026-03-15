@@ -1209,6 +1209,7 @@
   import { getAuth, onAuthStateChanged,
            signInWithEmailAndPassword,
            createUserWithEmailAndPassword,
+           sendEmailVerification,
            signOut }                                from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js';
   import { getFirestore, doc, setDoc,
            getDoc, serverTimestamp }                from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js';
@@ -1259,7 +1260,14 @@
     btn.disabled = true; btn.textContent = '로그인 중...';
     errEl.style.display = 'none';
     try {
-      await signInWithEmailAndPassword(auth, email, password);
+      const cred = await signInWithEmailAndPassword(auth, email, password);
+      if (!cred.user.emailVerified) {
+        await signOut(auth);
+        errEl.textContent = '이메일 인증이 완료되지 않았습니다. 받은편지함을 확인해 주세요.';
+        errEl.style.display = 'block';
+        btn.disabled = false; btn.textContent = '로그인';
+        return;
+      }
       window.closeModal('login');
       document.getElementById('login-form').reset();
     } catch(err) {
@@ -1290,6 +1298,8 @@
     errEl.style.display = 'none';
     try {
       const cred = await createUserWithEmailAndPassword(auth, email, password);
+      // 이메일 인증 발송
+      await sendEmailVerification(cred.user);
       // Firestore 프로필 저장 (실패해도 가입 자체는 성공)
       try {
         await setDoc(doc(db, 'users', cred.user.uid), {
@@ -1298,8 +1308,11 @@
           createdAt: serverTimestamp()
         });
       } catch(fsErr) { console.warn('Firestore save failed:', fsErr); }
+      await signOut(auth); // 인증 전까지 자동 로그인 방지
       window.closeModal('signup');
       document.getElementById('signup-form').reset();
+      // 인증 안내 팝업
+      alert('가입이 완료됐습니다!\n\n' + email + ' 으로 인증 메일을 발송했습니다.\n이메일 인증 후 로그인해 주세요.');
     } catch(err) {
       let msg = '회원가입 중 오류가 발생했습니다.';
       if (err.code === 'auth/email-already-in-use') msg = '이미 사용 중인 이메일입니다. 로그인해 주세요.';
