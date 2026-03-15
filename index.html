@@ -1655,7 +1655,7 @@
   async function loadAdminData() {
     try {
       // Users
-      const usersSnap = await getDocs(query(collection(db, 'users'), orderBy('createdAt', 'desc')));
+      const usersSnap = await getDocs(collection(db, 'users'));
       const users = usersSnap.docs.map(d => ({ id: d.id, ...d.data() }));
       document.getElementById('stat-users').textContent = users.length;
       const tbody = document.getElementById('users-tbody');
