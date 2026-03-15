@@ -1547,15 +1547,31 @@
         btn.disabled = false; btn.textContent = '로그인';
         return;
       }
-      // displayName 없으면 Firestore에서 가져와서 업데이트
-      if (!cred.user.displayName) {
-        try {
-          const snap = await getDoc(doc(db, 'users', cred.user.uid));
-          if (snap.exists() && snap.data().name) {
+      // Firestore 문서 확인 및 없으면 자동 생성
+      try {
+        const snap = await getDoc(doc(db, 'users', cred.user.uid));
+        if (snap.exists()) {
+          // displayName 없으면 Firestore 이름으로 업데이트
+          if (!cred.user.displayName && snap.data().name) {
             await updateProfile(cred.user, { displayName: snap.data().name });
           }
-        } catch(e) {}
-      }
+        } else {
+          // Firestore 문서 없는 경우 자동 생성
+          const name = cred.user.displayName || email.split('@')[0];
+          await setDoc(doc(db, 'users', cred.user.uid), {
+            uid: cred.user.uid,
+            email: cred.user.email,
+            name,
+            hospital: '',
+            memberType: '',
+            role: cred.user.email === 'jskjsk20157@gmail.com' ? 'admin' : 'user',
+            createdAt: serverTimestamp()
+          });
+          if (!cred.user.displayName) {
+            await updateProfile(cred.user, { displayName: name });
+          }
+        }
+      } catch(e) { console.warn('Firestore profile sync failed:', e); }
       window.closeModal('login');
       document.getElementById('login-form').reset();
     } catch(err) {
