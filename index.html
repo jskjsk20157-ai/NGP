@@ -1,13 +1,1412 @@
-<!doctype html>
-<html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>My Google AI Studio App</title>
-  </head>
-  <body>
-    <div id="root"></div>
-    <script type="module" src="/src/main.tsx"></script>
-  </body>
-</html>
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>NGP - Next Generation Pediatricians</title>
+  <link rel="stylesheet" href="https://hangeul.pstatic.net/hangeul_static/css/nanum-square-round.css" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
+    :root {
+      --blue: #003366;
+      --teal: #008080;
+      --slate-50: #f8fafc;
+      --slate-100: #f1f5f9;
+      --slate-200: #e2e8f0;
+      --slate-400: #94a3b8;
+      --slate-500: #64748b;
+      --slate-600: #475569;
+      --slate-700: #334155;
+      --slate-800: #1e293b;
+      --slate-900: #0f172a;
+    }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      font-family: 'NanumSquareRound', -apple-system, BlinkMacSystemFont, sans-serif;
+      background: #fff;
+      color: var(--slate-900);
+      -webkit-font-smoothing: antialiased;
+      word-break: keep-all;
+    }
+
+    /* ── HEADER ── */
+    #header {
+      position: fixed;
+      top: 0; left: 0; right: 0;
+      z-index: 40;
+      transition: background .3s, box-shadow .3s, padding .3s;
+      padding: 4px 0;
+    }
+    #header.scrolled {
+      background: #fff;
+      box-shadow: 0 1px 8px rgba(0,0,0,.08);
+      padding: 0;
+    }
+    .header-inner {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 0 24px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .logo-wrap { display: flex; align-items: center; text-decoration: none; }
+    .logo-wrap img { width: 64px; height: 64px; object-fit: contain; transition: transform .2s; }
+    .logo-wrap:hover img { transform: scale(1.05); }
+    .logo-fallback {
+      width: 56px; height: 56px;
+      background: var(--blue);
+      border-radius: 12px;
+      display: flex; align-items: center; justify-content: center;
+      display: none;
+    }
+    .logo-fallback span { color: #fff; font-weight: 900; font-size: 24px; }
+
+    nav.desktop { display: flex; align-items: center; gap: 40px; }
+    nav.desktop a {
+      font-size: 17px; font-weight: 800;
+      color: var(--slate-600);
+      text-decoration: none;
+      transition: color .2s;
+    }
+    nav.desktop a:hover, nav.desktop a.active { color: var(--teal); }
+    .nav-btns { display: flex; gap: 16px; margin-left: 16px; align-items: center; }
+    .btn-login {
+      padding: 8px 16px;
+      font-size: 15px; font-weight: 800;
+      color: var(--slate-700);
+      background: none; border: none; cursor: pointer;
+      transition: color .2s;
+    }
+    .btn-login:hover { color: var(--blue); }
+    .btn-signup {
+      padding: 10px 24px;
+      font-size: 15px; font-weight: 800;
+      color: #fff;
+      background: var(--blue);
+      border: none; border-radius: 12px;
+      cursor: pointer;
+      box-shadow: 0 4px 12px rgba(0,51,102,.15);
+      transition: opacity .2s, transform .1s;
+    }
+    .btn-signup:hover { opacity: .9; }
+    .btn-signup:active { transform: scale(.97); }
+
+    .burger {
+      display: none;
+      background: none; border: none; cursor: pointer;
+      padding: 8px; color: var(--slate-600);
+    }
+    .burger svg { width: 24px; height: 24px; }
+
+    /* mobile nav */
+    .mobile-nav {
+      display: none;
+      position: absolute;
+      top: 100%; left: 0; right: 0;
+      background: #fff;
+      border-top: 1px solid var(--slate-100);
+      padding: 24px;
+      box-shadow: 0 8px 24px rgba(0,0,0,.1);
+    }
+    .mobile-nav.open { display: block; }
+    .mobile-nav nav { display: flex; flex-direction: column; gap: 24px; }
+    .mobile-nav nav a {
+      font-size: 17px; font-weight: 800;
+      color: var(--slate-700); text-decoration: none;
+    }
+    .mobile-nav-btns { display: flex; flex-direction: column; gap: 12px; padding-top: 16px; border-top: 1px solid var(--slate-100); margin-top: 8px; }
+    .mobile-nav-btns button {
+      width: 100%; padding: 16px;
+      font-family: inherit; font-size: 16px; font-weight: 800;
+      border: none; border-radius: 12px; cursor: pointer;
+    }
+    .mobile-btn-login { background: var(--slate-100); color: var(--slate-700); }
+    .mobile-btn-signup { background: var(--blue); color: #fff; }
+
+    /* ── MAIN ── */
+    main { padding-top: 64px; }
+
+    /* ── SECTION SHARED ── */
+    .container { max-width: 1200px; margin: 0 auto; padding: 0 24px; }
+    .section-header { text-align: center; margin-bottom: 64px; }
+    .section-title {
+      font-size: clamp(28px, 4vw, 48px);
+      font-weight: 900; color: var(--blue);
+      margin-bottom: 16px;
+    }
+    .divider {
+      width: 80px; height: 6px;
+      background: var(--teal);
+      border-radius: 9999px;
+      margin: 0 auto;
+    }
+
+    /* ── HERO ── */
+    #hero {
+      position: relative;
+      padding: 32px 0 80px;
+      overflow: hidden;
+    }
+    @media (min-width: 768px) { #hero { padding: 48px 0 96px; } }
+    .hero-inner {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 48px;
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 0 24px;
+    }
+    @media (min-width: 1024px) {
+      .hero-inner { flex-direction: row; align-items: center; }
+    }
+    .hero-content { flex: 1; text-align: left; animation: fadeSlideIn .6s ease both; }
+    @keyframes fadeSlideIn {
+      from { opacity: 0; transform: translateX(-20px); }
+      to   { opacity: 1; transform: translateX(0); }
+    }
+    .hero-badge {
+      display: inline-block;
+      padding: 6px 16px;
+      border-radius: 9999px;
+      background: rgba(0,128,128,.1);
+      color: var(--teal);
+      font-size: 13px; font-weight: 800;
+      letter-spacing: .05em;
+      margin-bottom: 32px;
+    }
+    .hero-title {
+      font-size: clamp(36px, 6vw, 72px);
+      font-weight: 900;
+      line-height: 1.1;
+      color: var(--blue);
+      margin-bottom: 32px;
+    }
+    .hero-title span { color: var(--teal); }
+    .hero-desc {
+      font-size: clamp(17px, 2vw, 22px);
+      color: var(--slate-600);
+      line-height: 1.7;
+      margin-bottom: 48px;
+      max-width: 560px;
+    }
+    .hero-cta { display: flex; flex-wrap: wrap; gap: 20px; }
+    .btn-primary {
+      display: inline-block;
+      padding: 20px 40px;
+      background: var(--blue); color: #fff;
+      border-radius: 16px;
+      font-size: 17px; font-weight: 800;
+      text-decoration: none;
+      box-shadow: 0 12px 32px rgba(0,51,102,.2);
+      transition: opacity .2s, transform .1s;
+    }
+    .btn-primary:hover { opacity: .9; }
+    .btn-primary:active { transform: scale(.97); }
+    .btn-secondary {
+      display: inline-block;
+      padding: 20px 40px;
+      border: 2px solid var(--slate-200); color: var(--slate-700);
+      border-radius: 16px;
+      font-size: 17px; font-weight: 800;
+      text-decoration: none;
+      transition: background .2s, transform .1s;
+    }
+    .btn-secondary:hover { background: var(--slate-50); }
+    .btn-secondary:active { transform: scale(.97); }
+
+    .hero-visual {
+      display: none;
+      flex: 1;
+    }
+    @media (min-width: 1024px) { .hero-visual { display: block; } }
+    .hero-visual-inner {
+      width: 100%;
+      aspect-ratio: 1;
+      background: linear-gradient(135deg, rgba(0,51,102,.05), rgba(0,128,128,.05));
+      border-radius: 24px;
+      border: 1px solid var(--slate-100);
+      display: flex; align-items: center; justify-content: center;
+    }
+    .hero-visual-card {
+      width: 75%; height: 75%;
+      background: rgba(255,255,255,.5);
+      backdrop-filter: blur(8px);
+      border-radius: 16px;
+      box-shadow: inset 0 2px 8px rgba(0,0,0,.05);
+      display: flex; align-items: center; justify-content: center;
+    }
+    .hero-visual-card img { width: 50%; height: 50%; object-fit: contain; opacity: .2; }
+
+    .hero-blob-1 {
+      position: absolute;
+      top: 50%; left: 0;
+      transform: translate(-50%, -50%);
+      width: 384px; height: 384px;
+      background: rgba(0,128,128,.05);
+      border-radius: 50%;
+      filter: blur(80px);
+      z-index: -1;
+    }
+    .hero-blob-2 {
+      position: absolute;
+      bottom: 0; right: 0;
+      transform: translate(25%, 25%);
+      width: 500px; height: 500px;
+      background: rgba(0,51,102,.05);
+      border-radius: 50%;
+      filter: blur(80px);
+      z-index: -1;
+    }
+
+    /* ── ABOUT ── */
+    #about { padding: 96px 0; background: var(--slate-50); }
+    .vision-grid {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 32px;
+    }
+    @media (min-width: 768px) { .vision-grid { grid-template-columns: repeat(3, 1fr); } }
+    .vision-card {
+      background: #fff;
+      padding: 40px;
+      border-radius: 24px;
+      border: 1px solid var(--slate-100);
+      box-shadow: 0 1px 3px rgba(0,0,0,.04);
+      transition: transform .3s, box-shadow .3s;
+    }
+    .vision-card:hover {
+      transform: translateY(-10px);
+      box-shadow: 0 20px 40px rgba(0,51,102,.06);
+    }
+    .vision-icon {
+      display: inline-flex;
+      padding: 16px;
+      background: var(--slate-50);
+      border-radius: 16px;
+      margin-bottom: 32px;
+    }
+    .vision-icon svg { width: 32px; height: 32px; }
+    .icon-blue { color: var(--blue); }
+    .icon-teal { color: var(--teal); }
+    .vision-card h3 {
+      font-size: 22px; font-weight: 800;
+      color: var(--slate-800);
+      margin-bottom: 16px;
+    }
+    .vision-card p { color: var(--slate-600); line-height: 1.75; }
+
+    /* ── NEWS ── */
+    #news { padding: 96px 0; background: #fff; }
+    .news-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-end;
+      margin-bottom: 48px;
+      gap: 16px;
+    }
+    .news-header-left h2 { font-size: clamp(28px,4vw,48px); font-weight: 900; color: var(--blue); margin-bottom: 8px; }
+    .news-header-left p { color: var(--slate-500); font-weight: 600; }
+    .btn-more {
+      display: none;
+      align-items: center; gap: 8px;
+      color: var(--teal); font-weight: 800;
+      background: none; border: none; cursor: pointer;
+      font-family: inherit; font-size: 16px;
+      transition: transform .2s;
+      white-space: nowrap;
+    }
+    .btn-more:hover { transform: translateX(4px); }
+    @media (min-width: 768px) { .btn-more { display: flex; } }
+    .news-list { display: flex; flex-direction: column; gap: 24px; }
+    .news-item {
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      padding: 24px;
+      border-radius: 16px;
+      border: 1px solid var(--slate-100);
+      cursor: pointer;
+      transition: box-shadow .2s, border-color .2s;
+    }
+    @media (min-width: 768px) { .news-item { flex-direction: row; align-items: center; } }
+    .news-item:hover { box-shadow: 0 8px 24px rgba(0,0,0,.07); border-color: rgba(0,128,128,.2); }
+    .news-left { display: flex; align-items: center; gap: 16px; margin-bottom: 12px; }
+    @media (min-width: 768px) { .news-left { margin-bottom: 0; } }
+    .news-category {
+      padding: 4px 12px;
+      background: var(--slate-100);
+      color: var(--slate-500);
+      font-size: 12px; font-weight: 800;
+      border-radius: 8px;
+      white-space: nowrap;
+      transition: background .2s, color .2s;
+    }
+    .news-item:hover .news-category { background: rgba(0,128,128,.1); color: var(--teal); }
+    .news-title {
+      font-size: 17px; font-weight: 800;
+      color: var(--slate-800);
+      transition: color .2s;
+    }
+    .news-item:hover .news-title { color: var(--blue); }
+    .news-new {
+      width: 8px; height: 8px;
+      background: #ef4444;
+      border-radius: 50%;
+      animation: pulse 2s infinite;
+      flex-shrink: 0;
+    }
+    @keyframes pulse {
+      0%, 100% { opacity: 1; transform: scale(1); }
+      50%       { opacity: .5; transform: scale(.8); }
+    }
+    .news-date { color: var(--slate-400); font-size: 14px; font-weight: 600; white-space: nowrap; }
+    .btn-more-mobile {
+      display: block;
+      width: 100%; margin-top: 32px;
+      padding: 16px;
+      border: 1px solid var(--slate-200);
+      border-radius: 12px;
+      background: none;
+      color: var(--slate-600); font-family: inherit; font-size: 16px; font-weight: 800;
+      cursor: pointer;
+    }
+    @media (min-width: 768px) { .btn-more-mobile { display: none; } }
+
+    /* ── CALENDAR ── */
+    #calendar { padding: 96px 0; background: var(--slate-50); }
+    .calendar-header {
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      align-items: flex-start;
+      margin-bottom: 48px;
+      gap: 16px;
+    }
+    @media (min-width: 768px) { .calendar-header { flex-direction: row; align-items: flex-end; } }
+    .calendar-header-left h2 { font-size: clamp(28px,4vw,40px); font-weight: 900; color: var(--blue); margin-bottom: 16px; }
+    .calendar-header-left p { color: var(--slate-500); }
+    .btn-cal-more {
+      color: var(--teal); font-weight: 700;
+      background: none; border: none; cursor: pointer;
+      font-family: inherit; font-size: 15px;
+    }
+    .btn-cal-more:hover { text-decoration: underline; }
+    .event-list { display: flex; flex-direction: column; gap: 16px; }
+    .event-item {
+      display: flex;
+      flex-direction: column;
+      padding: 24px;
+      border-radius: 16px;
+      border: 1px solid var(--slate-100);
+      cursor: pointer;
+      transition: border-color .2s, background .2s;
+    }
+    @media (min-width: 768px) { .event-item { flex-direction: row; align-items: center; } }
+    .event-item:hover { border-color: rgba(0,128,128,.3); background: rgba(0,128,128,.04); }
+    .event-date-col {
+      display: flex; align-items: center; gap: 16px;
+      margin-bottom: 16px;
+    }
+    @media (min-width: 768px) { .event-date-col { margin-bottom: 0; width: 200px; flex-shrink: 0; } }
+    .event-icon-wrap {
+      padding: 12px;
+      background: var(--slate-100);
+      border-radius: 12px;
+      transition: background .2s;
+    }
+    .event-item:hover .event-icon-wrap { background: #fff; }
+    .event-icon-wrap svg { width: 20px; height: 20px; color: var(--slate-500); display: block; }
+    .event-item:hover .event-icon-wrap svg { color: var(--teal); }
+    .event-date { font-weight: 800; color: var(--slate-700); }
+    .event-title {
+      flex: 1;
+      font-size: 17px; font-weight: 800;
+      color: var(--slate-800);
+      margin-bottom: 12px;
+      transition: color .2s;
+    }
+    @media (min-width: 768px) { .event-title { margin-bottom: 0; } }
+    .event-item:hover .event-title { color: var(--blue); }
+    .event-location {
+      display: flex; align-items: center; gap: 8px;
+      color: var(--slate-500); font-size: 14px;
+      margin-bottom: 12px;
+    }
+    @media (min-width: 768px) { .event-location { margin-bottom: 0; margin-right: 32px; } }
+    .event-location svg { width: 16px; height: 16px; flex-shrink: 0; }
+    .event-badge {
+      padding: 4px 12px;
+      border-radius: 9999px;
+      font-size: 12px; font-weight: 700;
+      white-space: nowrap;
+      align-self: flex-start;
+    }
+    @media (min-width: 768px) { .event-badge { align-self: auto; } }
+    .badge-seminar    { background: #dbeafe; color: #2563eb; }
+    .badge-conference { background: #ede9fe; color: #7c3aed; }
+    .badge-meeting    { background: #fed7aa; color: #ea580c; }
+
+    /* ── FAQ ── */
+    #faq { padding: 96px 0; background: #fff; }
+    #faq .section-header p { color: var(--slate-500); margin-top: 16px; }
+    .faq-list { display: flex; flex-direction: column; gap: 16px; max-width: 768px; margin: 0 auto; }
+    .faq-item {
+      background: #fff;
+      border-radius: 16px;
+      border: 1px solid var(--slate-100);
+      box-shadow: 0 1px 3px rgba(0,0,0,.04);
+      overflow: hidden;
+    }
+    .faq-btn {
+      width: 100%; display: flex;
+      justify-content: space-between; align-items: center;
+      padding: 24px;
+      background: none; border: none; cursor: pointer;
+      text-align: left;
+      transition: background .2s;
+      font-family: inherit;
+    }
+    .faq-btn:hover { background: var(--slate-50); }
+    .faq-question { font-size: 16px; font-weight: 800; color: var(--slate-800); }
+    .faq-icon { flex-shrink: 0; margin-left: 16px; transition: transform .3s; }
+    .faq-icon svg { width: 20px; height: 20px; color: var(--slate-400); display: block; }
+    .faq-item.open .faq-icon { transform: rotate(180deg); }
+    .faq-item.open .faq-icon svg { color: var(--teal); }
+    .faq-answer {
+      max-height: 0;
+      overflow: hidden;
+      transition: max-height .35s ease, opacity .3s;
+      opacity: 0;
+    }
+    .faq-item.open .faq-answer { max-height: 300px; opacity: 1; }
+    .faq-answer-inner {
+      padding: 16px 24px 24px;
+      color: var(--slate-600);
+      line-height: 1.75;
+      border-top: 1px solid var(--slate-50);
+    }
+
+    /* ── CONTACT ── */
+    #contact { padding: 96px 0; background: var(--slate-50); }
+    .contact-card {
+      max-width: 900px; margin: 0 auto;
+      background: #fff;
+      border-radius: 24px;
+      box-shadow: 0 20px 60px rgba(0,0,0,.1);
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+    }
+    @media (min-width: 768px) { .contact-card { flex-direction: row; } }
+    .contact-sidebar {
+      background: var(--blue);
+      padding: 48px;
+      color: #fff;
+    }
+    @media (min-width: 768px) { .contact-sidebar { width: 33.333%; } }
+    .contact-sidebar h2 { font-size: 28px; font-weight: 800; margin-bottom: 24px; }
+    .contact-sidebar p { color: rgba(219,234,254,.8); line-height: 1.75; margin-bottom: 32px; }
+    .contact-sidebar ul { list-style: none; display: flex; flex-direction: column; gap: 16px; }
+    .contact-sidebar li { color: rgba(191,219,254,.8); font-size: 14px; }
+    .contact-sidebar li::before { content: '• '; }
+
+    .contact-form-wrap { padding: 48px; flex: 1; }
+    .form-grid { display: grid; grid-template-columns: 1fr; gap: 24px; margin-bottom: 24px; }
+    @media (min-width: 540px) { .form-grid { grid-template-columns: 1fr 1fr; } }
+    .form-group { display: flex; flex-direction: column; gap: 8px; }
+    .form-group label { font-size: 14px; font-weight: 700; color: var(--slate-700); }
+    .form-group input,
+    .form-group select,
+    .form-group textarea {
+      padding: 12px 16px;
+      border: 1px solid var(--slate-200);
+      border-radius: 12px;
+      font-family: inherit; font-size: 15px;
+      outline: none;
+      transition: border-color .2s, box-shadow .2s;
+      background: #fff;
+      color: var(--slate-900);
+    }
+    .form-group input:focus,
+    .form-group select:focus,
+    .form-group textarea:focus {
+      border-color: var(--teal);
+      box-shadow: 0 0 0 3px rgba(0,128,128,.15);
+    }
+    .form-group textarea { resize: none; }
+    .form-full { grid-column: 1 / -1; }
+    .btn-submit {
+      width: 100%; padding: 16px;
+      background: var(--teal); color: #fff;
+      border: none; border-radius: 12px;
+      font-family: inherit; font-size: 16px; font-weight: 800;
+      cursor: pointer;
+      display: flex; align-items: center; justify-content: center; gap: 8px;
+      transition: opacity .2s, transform .1s;
+      margin-top: 8px;
+    }
+    .btn-submit:hover { opacity: .9; }
+    .btn-submit:active { transform: scale(.98); }
+    .btn-submit:disabled { opacity: .5; cursor: not-allowed; }
+    .btn-submit svg { width: 20px; height: 20px; }
+
+    .form-success {
+      display: none;
+      flex-direction: column;
+      align-items: center; justify-content: center;
+      text-align: center;
+      padding: 48px 24px;
+      min-height: 300px;
+    }
+    .form-success.show { display: flex; }
+    .success-icon {
+      width: 80px; height: 80px;
+      background: #dcfce7;
+      border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      margin-bottom: 24px;
+    }
+    .success-icon svg { width: 40px; height: 40px; color: #16a34a; }
+    .form-success h3 { font-size: 24px; font-weight: 800; color: var(--slate-800); margin-bottom: 16px; }
+    .form-success p { color: var(--slate-600); line-height: 1.75; }
+    .btn-reset { margin-top: 32px; color: var(--teal); font-weight: 700; background: none; border: none; cursor: pointer; font-family: inherit; font-size: 15px; }
+    .btn-reset:hover { text-decoration: underline; }
+
+    /* ── FOOTER ── */
+    footer {
+      padding: 48px 0;
+      background: #fff;
+      border-top: 1px solid var(--slate-100);
+    }
+    .footer-inner {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 32px;
+    }
+    @media (min-width: 768px) {
+      .footer-inner { flex-direction: row; justify-content: space-between; }
+    }
+    .footer-logo { width: 80px; height: 80px; object-fit: contain; }
+    .footer-text { text-align: center; color: var(--slate-400); font-size: 14px; line-height: 1.75; }
+    @media (min-width: 768px) { .footer-text { text-align: right; } }
+
+    /* ── FLOATING BUTTON ── */
+    #fab {
+      position: fixed;
+      bottom: 32px; right: 32px;
+      width: 52px; height: 52px;
+      background: var(--blue); color: #fff;
+      border: none; border-radius: 50%;
+      cursor: pointer;
+      display: flex; align-items: center; justify-content: center;
+      box-shadow: 0 8px 24px rgba(0,51,102,.3);
+      transition: opacity .3s, transform .3s;
+      opacity: 0; pointer-events: none;
+      z-index: 50;
+    }
+    #fab.visible { opacity: 1; pointer-events: auto; }
+    #fab:hover { transform: translateY(-3px); }
+    #fab svg { width: 20px; height: 20px; }
+
+    /* ── MODAL ── */
+    .modal-overlay {
+      position: fixed; inset: 0;
+      background: rgba(0,0,0,.5);
+      backdrop-filter: blur(4px);
+      z-index: 100;
+      display: flex; align-items: center; justify-content: center;
+      padding: 24px;
+      opacity: 0; pointer-events: none;
+      transition: opacity .25s;
+    }
+    .modal-overlay.open { opacity: 1; pointer-events: auto; }
+    .modal {
+      background: #fff;
+      border-radius: 24px;
+      padding: 40px;
+      width: 100%; max-width: 440px;
+      box-shadow: 0 24px 64px rgba(0,0,0,.2);
+      transform: translateY(16px);
+      transition: transform .25s;
+    }
+    .modal-overlay.open .modal { transform: translateY(0); }
+    .modal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 32px; }
+    .modal-title { font-size: 24px; font-weight: 900; color: var(--blue); }
+    .modal-close {
+      width: 36px; height: 36px;
+      background: var(--slate-100); border: none; border-radius: 50%;
+      cursor: pointer; font-size: 20px; line-height: 1;
+      color: var(--slate-600);
+      display: flex; align-items: center; justify-content: center;
+      transition: background .2s;
+    }
+    .modal-close:hover { background: var(--slate-200); }
+    .modal .form-group { margin-bottom: 20px; }
+    .modal .form-group:last-of-type { margin-bottom: 0; }
+    .modal-submit {
+      width: 100%; padding: 16px; margin-top: 24px;
+      background: var(--blue); color: #fff;
+      border: none; border-radius: 12px;
+      font-family: inherit; font-size: 16px; font-weight: 800;
+      cursor: pointer;
+      transition: opacity .2s;
+    }
+    .modal-submit:hover { opacity: .9; }
+    .modal-footer { text-align: center; margin-top: 20px; color: var(--slate-500); font-size: 14px; }
+    .modal-footer button {
+      color: var(--teal); font-weight: 800;
+      background: none; border: none; cursor: pointer; font-family: inherit; font-size: 14px;
+    }
+    .modal-footer button:hover { text-decoration: underline; }
+
+    /* ── PAGE SECTIONS ── */
+    .page { display: none; }
+    .page.active { display: block; }
+
+    /* Smooth nav highlight */
+    nav.desktop a.active { color: var(--teal); }
+  </style>
+</head>
+<body>
+
+<!-- ── HEADER ── -->
+<header id="header">
+  <div class="header-inner">
+    <a href="#" class="logo-wrap" onclick="showPage('home'); return false;">
+      <img src="public/logo2.png" alt="NGP Logo" id="logo-img"
+           onerror="this.style.display='none';document.getElementById('logo-fallback').style.display='flex';" />
+      <div class="logo-fallback" id="logo-fallback">
+        <span>N</span>
+      </div>
+    </a>
+
+    <nav class="desktop">
+      <a href="#" onclick="showPage('about');return false;" data-page="about">About</a>
+      <a href="#" onclick="showPage('news');return false;" data-page="news">News</a>
+      <a href="#" onclick="showPage('calendar');return false;" data-page="calendar">Calendar</a>
+      <a href="#" onclick="showPage('faq');return false;" data-page="faq">FAQ</a>
+      <a href="#" onclick="showPage('contact');return false;" data-page="contact">Contact</a>
+      <div class="nav-btns">
+        <div id="nav-guest">
+          <button class="btn-login" onclick="openModal('login')">Login</button>
+          <button class="btn-signup" onclick="openModal('signup')">Sign Up</button>
+        </div>
+        <div id="nav-user" style="display:none; align-items:center; gap:12px;">
+          <span id="nav-username" style="font-size:14px;font-weight:800;color:var(--slate-800);"></span>
+          <button onclick="handleLogout()" style="padding:8px 16px;background:var(--slate-100);color:var(--slate-600);border:none;border-radius:10px;font-family:inherit;font-size:14px;font-weight:700;cursor:pointer;transition:background .2s;" onmouseover="this.style.background='#fee2e2';this.style.color='#ef4444'" onmouseout="this.style.background='var(--slate-100)';this.style.color='var(--slate-600)'">로그아웃</button>
+        </div>
+      </div>
+    </nav>
+
+    <button class="burger" id="burger" onclick="toggleMobile()">
+      <svg id="burger-open" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+        <line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/>
+      </svg>
+      <svg id="burger-close" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" style="display:none">
+        <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
+      </svg>
+    </button>
+  </div>
+
+  <div class="mobile-nav" id="mobile-nav">
+    <nav>
+      <a href="#" onclick="showPage('about');closeMobile();return false;">About</a>
+      <a href="#" onclick="showPage('news');closeMobile();return false;">News</a>
+      <a href="#" onclick="showPage('calendar');closeMobile();return false;">Calendar</a>
+      <a href="#" onclick="showPage('faq');closeMobile();return false;">FAQ</a>
+      <a href="#" onclick="showPage('contact');closeMobile();return false;">Contact</a>
+    </nav>
+    <div class="mobile-nav-btns">
+      <div id="mobile-nav-guest">
+        <button class="mobile-btn-login" onclick="closeMobile();openModal('login')" style="width:100%;margin-bottom:12px;">Login</button>
+        <button class="mobile-btn-signup" onclick="closeMobile();openModal('signup')" style="width:100%;">Sign Up</button>
+      </div>
+      <div id="mobile-nav-user" style="display:none;">
+        <div style="padding:8px 0;font-weight:800;color:var(--slate-800);margin-bottom:12px;" id="mobile-username"></div>
+        <button onclick="closeMobile();handleLogout()" style="width:100%;padding:16px;background:#fee2e2;color:#ef4444;border:none;border-radius:12px;font-family:inherit;font-size:16px;font-weight:800;cursor:pointer;">로그아웃</button>
+      </div>
+    </div>
+  </div>
+</header>
+
+<main>
+  <!-- ══ HOME ══ -->
+  <div class="page active" id="page-home">
+    <!-- HERO -->
+    <section id="hero">
+      <div class="hero-inner">
+        <div class="hero-content">
+          <span class="hero-badge">Next Generation Pediatricians</span>
+          <h1 class="hero-title">
+            소아청소년과의 <br />
+            <span>새로운 물결, NGP</span>
+          </h1>
+          <p class="hero-desc">
+            젊은 소아청소년과 의사들이 함께 만드는 혁신의 네트워크.<br />
+            연대를 통해 더 나은 의료 환경과 미래를 구축합니다.
+          </p>
+          <div class="hero-cta">
+            <a href="#" class="btn-primary" onclick="showPage('contact');return false;">지금 가입하기</a>
+            <a href="#" class="btn-secondary" onclick="showPage('about');return false;">비전 더 알아보기</a>
+          </div>
+        </div>
+        <div class="hero-visual">
+          <div class="hero-visual-inner">
+            <div class="hero-visual-card">
+              <img src="public/logo2.png" alt="NGP Logo Large"
+                   onerror="this.style.display='none'" />
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="hero-blob-1"></div>
+      <div class="hero-blob-2"></div>
+    </section>
+  </div>
+
+  <!-- ══ ABOUT ══ -->
+  <div class="page" id="page-about">
+    <section id="about">
+      <div class="container">
+        <div class="section-header">
+          <h2 class="section-title">NGP의 비전</h2>
+          <div class="divider"></div>
+        </div>
+        <div class="vision-grid">
+          <div class="vision-card">
+            <div class="vision-icon">
+              <svg class="icon-blue" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/>
+                <circle cx="9" cy="7" r="4"/>
+                <path d="M23 21v-2a4 4 0 0 0-3-3.87"/>
+                <path d="M16 3.13a4 4 0 0 1 0 7.75"/>
+              </svg>
+            </div>
+            <h3>연대감</h3>
+            <p>젊은 소아청소년과 의사들 간의 강력한 네트워크를 형성하여 서로 지지하고 협력하는 커뮤니티를 지향합니다.</p>
+          </div>
+          <div class="vision-card">
+            <div class="vision-icon">
+              <svg class="icon-teal" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <line x1="12" y1="2" x2="12" y2="6"/>
+                <line x1="12" y1="18" x2="12" y2="22"/>
+                <line x1="4.93" y1="4.93" x2="7.76" y2="7.76"/>
+                <line x1="16.24" y1="16.24" x2="19.07" y2="19.07"/>
+                <line x1="2" y1="12" x2="6" y2="12"/>
+                <line x1="18" y1="12" x2="22" y2="12"/>
+                <line x1="4.93" y1="19.07" x2="7.76" y2="16.24"/>
+                <line x1="16.24" y1="7.76" x2="19.07" y2="4.93"/>
+                <circle cx="12" cy="12" r="4"/>
+              </svg>
+            </div>
+            <h3>혁신</h3>
+            <p>전통적인 의료 방식을 넘어 최신 기술과 트렌드를 접목한 혁신적인 소아 청소년 진료 모델을 연구합니다.</p>
+          </div>
+          <div class="vision-card">
+            <div class="vision-icon">
+              <svg class="icon-blue" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <circle cx="12" cy="12" r="10"/>
+                <line x1="12" y1="8" x2="12" y2="12"/>
+                <line x1="12" y1="16" x2="12.01" y2="16"/>
+              </svg>
+            </div>
+            <h3>전문성</h3>
+            <p>학술 교류와 지속적인 교육을 통해 소아청소년과 의사로서의 역량을 강화하고 전문 지식을 공유합니다.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+  </div>
+
+  <!-- ══ NEWS ══ -->
+  <div class="page" id="page-news">
+    <section id="news">
+      <div class="container">
+        <div class="news-header">
+          <div class="news-header-left">
+            <h2>NGP 뉴스</h2>
+            <p>소아청소년과의 새로운 소식을 전해드립니다.</p>
+          </div>
+          <button class="btn-more">
+            전체보기
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" width="16" height="16">
+              <line x1="5" y1="12" x2="19" y2="12"/>
+              <polyline points="12 5 19 12 12 19"/>
+            </svg>
+          </button>
+        </div>
+        <div class="news-list">
+          <div class="news-item">
+            <div class="news-left">
+              <span class="news-category">공지사항</span>
+              <span class="news-title">2026년 NGP 정회원 모집 안내</span>
+              <span class="news-new"></span>
+            </div>
+            <span class="news-date">2026.03.10</span>
+          </div>
+          <div class="news-item">
+            <div class="news-left">
+              <span class="news-category">학회소식</span>
+              <span class="news-title">제15회 소아청소년과 미래전략 포럼 초록 접수</span>
+            </div>
+            <span class="news-date">2026.03.05</span>
+          </div>
+          <div class="news-item">
+            <div class="news-left">
+              <span class="news-category">보도자료</span>
+              <span class="news-title">NGP, 디지털 헬스케어 스타트업과 업무협약 체결</span>
+            </div>
+            <span class="news-date">2026.02.28</span>
+          </div>
+        </div>
+        <button class="btn-more-mobile">전체 뉴스 보기</button>
+      </div>
+    </section>
+  </div>
+
+  <!-- ══ CALENDAR ══ -->
+  <div class="page" id="page-calendar">
+    <section id="calendar">
+      <div class="container">
+        <div class="calendar-header">
+          <div class="calendar-header-left">
+            <h2>주요 일정</h2>
+            <p>NGP의 학회 일정과 정기 모임을 확인하세요.</p>
+          </div>
+          <button class="btn-cal-more">전체 일정 보기</button>
+        </div>
+        <div class="event-list">
+          <div class="event-item">
+            <div class="event-date-col">
+              <div class="event-icon-wrap">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+                  <rect x="3" y="4" width="18" height="18" rx="2" ry="2"/>
+                  <line x1="16" y1="2" x2="16" y2="6"/>
+                  <line x1="8" y1="2" x2="8" y2="6"/>
+                  <line x1="3" y1="10" x2="21" y2="10"/>
+                </svg>
+              </div>
+              <span class="event-date">2026.04.15</span>
+            </div>
+            <div class="event-title">NGP 춘계 정기 세미나</div>
+            <div class="event-location">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+                <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/>
+                <circle cx="12" cy="10" r="3"/>
+              </svg>
+              서울 코엑스 컨퍼런스룸
+            </div>
+            <span class="event-badge badge-seminar">SEMINAR</span>
+          </div>
+          <div class="event-item">
+            <div class="event-date-col">
+              <div class="event-icon-wrap">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+                  <rect x="3" y="4" width="18" height="18" rx="2" ry="2"/>
+                  <line x1="16" y1="2" x2="16" y2="6"/>
+                  <line x1="8" y1="2" x2="8" y2="6"/>
+                  <line x1="3" y1="10" x2="21" y2="10"/>
+                </svg>
+              </div>
+              <span class="event-date">2026.05.20</span>
+            </div>
+            <div class="event-title">소아청소년과 미래 전략 포럼</div>
+            <div class="event-location">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+                <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/>
+                <circle cx="12" cy="10" r="3"/>
+              </svg>
+              온라인 (Zoom)
+            </div>
+            <span class="event-badge badge-conference">CONFERENCE</span>
+          </div>
+          <div class="event-item">
+            <div class="event-date-col">
+              <div class="event-icon-wrap">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+                  <rect x="3" y="4" width="18" height="18" rx="2" ry="2"/>
+                  <line x1="16" y1="2" x2="16" y2="6"/>
+                  <line x1="8" y1="2" x2="8" y2="6"/>
+                  <line x1="3" y1="10" x2="21" y2="10"/>
+                </svg>
+              </div>
+              <span class="event-date">2026.06.10</span>
+            </div>
+            <div class="event-title">수도권 젊은 의사 네트워킹 데이</div>
+            <div class="event-location">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+                <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/>
+                <circle cx="12" cy="10" r="3"/>
+              </svg>
+              강남 모임공간
+            </div>
+            <span class="event-badge badge-meeting">MEETING</span>
+          </div>
+          <div class="event-item">
+            <div class="event-date-col">
+              <div class="event-icon-wrap">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+                  <rect x="3" y="4" width="18" height="18" rx="2" ry="2"/>
+                  <line x1="16" y1="2" x2="16" y2="6"/>
+                  <line x1="8" y1="2" x2="8" y2="6"/>
+                  <line x1="3" y1="10" x2="21" y2="10"/>
+                </svg>
+              </div>
+              <span class="event-date">2026.07.05</span>
+            </div>
+            <div class="event-title">디지털 헬스케어와 소아과 워크숍</div>
+            <div class="event-location">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+                <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/>
+                <circle cx="12" cy="10" r="3"/>
+              </svg>
+              판교 테크노밸리
+            </div>
+            <span class="event-badge badge-seminar">SEMINAR</span>
+          </div>
+        </div>
+      </div>
+    </section>
+  </div>
+
+  <!-- ══ FAQ ══ -->
+  <div class="page" id="page-faq">
+    <section id="faq">
+      <div class="container">
+        <div class="section-header">
+          <h2 class="section-title">자주 묻는 질문</h2>
+          <div class="divider"></div>
+          <p>NGP에 대해 궁금하신 점을 확인하세요.</p>
+        </div>
+        <div class="faq-list">
+          <div class="faq-item">
+            <button class="faq-btn" onclick="toggleFaq(this)">
+              <span class="faq-question">NGP 가입 자격은 어떻게 되나요?</span>
+              <span class="faq-icon">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+                  <polyline points="6 9 12 15 18 9"/>
+                </svg>
+              </span>
+            </button>
+            <div class="faq-answer">
+              <div class="faq-answer-inner">소아청소년과 의사 자격을 취득한 젊은 의사라면 누구나 가입 문의가 가능합니다. 전공의(레지던트) 분들도 준회원으로 참여하실 수 있습니다.</div>
+            </div>
+          </div>
+          <div class="faq-item">
+            <button class="faq-btn" onclick="toggleFaq(this)">
+              <span class="faq-question">정기 모임은 얼마나 자주 있나요?</span>
+              <span class="faq-icon">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+                  <polyline points="6 9 12 15 18 9"/>
+                </svg>
+              </span>
+            </button>
+            <div class="faq-answer">
+              <div class="faq-answer-inner">분기별 1회의 정기 세미나와 월 1회의 소규모 지역별 네트워킹 모임이 진행됩니다. 자세한 일정은 캘린더 섹션에서 확인하실 수 있습니다.</div>
+            </div>
+          </div>
+          <div class="faq-item">
+            <button class="faq-btn" onclick="toggleFaq(this)">
+              <span class="faq-question">회원 전용 공간에서는 어떤 활동을 하나요?</span>
+              <span class="faq-icon">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+                  <polyline points="6 9 12 15 18 9"/>
+                </svg>
+              </span>
+            </button>
+            <div class="faq-answer">
+              <div class="faq-answer-inner">최신 논문 리뷰, 진료 케이스 스터디, 개원 및 경영 정보 공유, 그리고 회원들 간의 익명 커뮤니티 활동이 이루어집니다.</div>
+            </div>
+          </div>
+          <div class="faq-item">
+            <button class="faq-btn" onclick="toggleFaq(this)">
+              <span class="faq-question">후원이나 협업 제안은 어디로 하나요?</span>
+              <span class="faq-icon">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+                  <polyline points="6 9 12 15 18 9"/>
+                </svg>
+              </span>
+            </button>
+            <div class="faq-answer">
+              <div class="faq-answer-inner">Contact Form의 문의 유형에서 '후원 및 협업'을 선택하여 내용을 남겨주시면 담당자가 확인 후 연락드리겠습니다.</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+  </div>
+
+  <!-- ══ CONTACT ══ -->
+  <div class="page" id="page-contact">
+    <section id="contact">
+      <div class="container">
+        <div class="contact-card">
+          <div class="contact-sidebar">
+            <h2>함께하기</h2>
+            <p>NGP는 소아청소년과의 미래를 함께 고민할 젊은 의사들의 참여를 기다립니다.</p>
+            <ul>
+              <li>가입 문의</li>
+              <li>인터뷰 요청</li>
+              <li>후원 및 협업</li>
+            </ul>
+          </div>
+          <div class="contact-form-wrap">
+            <form id="contact-form" onsubmit="submitForm(event)">
+              <div class="form-grid">
+                <div class="form-group">
+                  <label for="name">이름</label>
+                  <input type="text" id="name" placeholder="홍길동" required />
+                </div>
+                <div class="form-group">
+                  <label for="hospital">소속 (병원명)</label>
+                  <input type="text" id="hospital" placeholder="NGP 병원" required />
+                </div>
+                <div class="form-group form-full">
+                  <label for="tel">연락처</label>
+                  <input type="tel" id="tel" placeholder="010-0000-0000" required />
+                </div>
+                <div class="form-group form-full">
+                  <label for="type">문의 유형</label>
+                  <select id="type">
+                    <option value="join">가입 문의</option>
+                    <option value="interview">인터뷰 요청</option>
+                    <option value="support">후원 및 협업</option>
+                  </select>
+                </div>
+                <div class="form-group form-full">
+                  <label for="msg">메시지 (선택)</label>
+                  <textarea id="msg" rows="4" placeholder="문의 내용을 입력해주세요."></textarea>
+                </div>
+              </div>
+              <button type="submit" class="btn-submit" id="submit-btn">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+                  <line x1="22" y1="2" x2="11" y2="13"/>
+                  <polygon points="22 2 15 22 11 13 2 9 22 2"/>
+                </svg>
+                문의 제출하기
+              </button>
+            </form>
+            <div class="form-success" id="form-success">
+              <div class="success-icon">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+                  <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/>
+                  <polyline points="22 4 12 14.01 9 11.01"/>
+                </svg>
+              </div>
+              <h3>제출 완료!</h3>
+              <p>NGP와 함께해주셔서 감사합니다.<br />곧 연락드리겠습니다.</p>
+              <button class="btn-reset" onclick="resetForm()">새로운 문의 작성하기</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+  </div>
+</main>
+
+<!-- ── FOOTER ── -->
+<footer>
+  <div class="container">
+    <div class="footer-inner">
+      <img src="public/logo2.png" alt="NGP Logo" class="footer-logo"
+           onerror="this.outerHTML='<div style=\'width:40px;height:40px;background:#003366;border-radius:8px;display:flex;align-items:center;justify-content:center\'><span style=\'color:#fff;font-weight:900;font-size:14px\'>N</span></div>'" />
+      <div class="footer-text">
+        <p>© 2026 Next Generation Pediatricians. All rights reserved.</p>
+        <p>소아청소년과의 밝은 미래를 위해 함께합니다.</p>
+      </div>
+    </div>
+  </div>
+</footer>
+
+<!-- ── FLOATING BUTTON ── -->
+<button id="fab" onclick="window.scrollTo({top:0,behavior:'smooth'})" title="맨 위로">
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+    <line x1="12" y1="19" x2="12" y2="5"/>
+    <polyline points="5 12 12 5 19 12"/>
+  </svg>
+</button>
+
+<!-- ── LOGIN MODAL ── -->
+<div class="modal-overlay" id="modal-login" onclick="closeModalOutside(event,'login')">
+  <div class="modal">
+    <div class="modal-header">
+      <span class="modal-title">회원 로그인</span>
+      <button class="modal-close" onclick="closeModal('login')">×</button>
+    </div>
+    <p style="color:var(--slate-500);font-size:14px;margin-bottom:20px;">회원 전용 공간 진입을 위한 이메일 기반 간편 로그인입니다.</p>
+    <div id="login-error" style="display:none;margin-bottom:16px;padding:12px;background:#fef2f2;border:1px solid #fee2e2;color:#dc2626;font-size:14px;border-radius:12px;text-align:center;"></div>
+    <form id="login-form" onsubmit="handleLogin(event)">
+      <div class="form-group" style="margin-bottom:16px;">
+        <label>이메일 주소</label>
+        <input type="email" id="login-email" placeholder="example@hospital.com" required />
+      </div>
+      <div class="form-group" style="margin-bottom:16px;">
+        <label>비밀번호</label>
+        <input type="password" id="login-password" placeholder="••••••••" required />
+      </div>
+      <button type="submit" class="modal-submit" id="login-submit">로그인</button>
+    </form>
+    <div class="modal-footer">
+      아직 회원이 아니신가요?
+      <button onclick="closeModal('login');openModal('signup')">지금 바로 회원가입하기</button>
+    </div>
+  </div>
+</div>
+
+<!-- ── SIGNUP MODAL ── -->
+<div class="modal-overlay" id="modal-signup" onclick="closeModalOutside(event,'signup')">
+  <div class="modal">
+    <div class="modal-header">
+      <span class="modal-title">회원가입</span>
+      <button class="modal-close" onclick="closeModal('signup')">×</button>
+    </div>
+    <p style="color:var(--slate-500);font-size:14px;margin-bottom:20px;">NGP 네트워크의 일원이 되어 소아청소년과의 미래를 함께 만들어가세요.</p>
+    <div id="signup-error" style="display:none;margin-bottom:16px;padding:12px;background:#fef2f2;border:1px solid #fee2e2;color:#dc2626;font-size:14px;border-radius:12px;"></div>
+    <form id="signup-form" onsubmit="handleSignUp(event)">
+      <div class="form-group" style="margin-bottom:14px;">
+        <label>성함</label>
+        <input type="text" id="signup-name" placeholder="홍길동" required />
+      </div>
+      <div class="form-group" style="margin-bottom:14px;">
+        <label>소속 병원/기관</label>
+        <input type="text" id="signup-hospital" placeholder="NGP 어린이병원" required />
+      </div>
+      <div class="form-group" style="margin-bottom:14px;">
+        <label>회원 유형</label>
+        <select id="signup-member-type" required>
+          <option value="">선택해 주세요</option>
+          <option value="전공의">전공의 (레지던트)</option>
+          <option value="전문의">전문의</option>
+          <option value="기자">기자</option>
+          <option value="기타">기타</option>
+        </select>
+      </div>
+      <div class="form-group" style="margin-bottom:14px;">
+        <label>이메일 주소</label>
+        <input type="email" id="signup-email" placeholder="example@hospital.com" required />
+      </div>
+      <div class="form-group" style="margin-bottom:20px;">
+        <label>비밀번호 (8자 이상)</label>
+        <input type="password" id="signup-password" placeholder="8자 이상 입력" required />
+      </div>
+      <button type="submit" class="modal-submit" id="signup-submit">가입 신청하기</button>
+    </form>
+    <div class="modal-footer">
+      이미 계정이 있으신가요?
+      <button onclick="closeModal('signup');openModal('login')">로그인하기</button>
+    </div>
+  </div>
+</div>
+
+<script type="module">
+  import { initializeApp }                          from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js';
+  import { getAuth, onAuthStateChanged,
+           signInWithEmailAndPassword,
+           createUserWithEmailAndPassword,
+           signOut }                                from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js';
+  import { getFirestore, doc, setDoc,
+           getDoc, serverTimestamp }                from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js';
+
+  const app  = initializeApp({
+    apiKey:            "AIzaSyAlV9WyJWzhwMYPdzFSJxYXt2kTnU1Lue0",
+    authDomain:        "gen-lang-client-0075620344.firebaseapp.com",
+    projectId:         "gen-lang-client-0075620344",
+    storageBucket:     "gen-lang-client-0075620344.firebasestorage.app",
+    messagingSenderId: "756762936052",
+    appId:             "1:756762936052:web:2df970ddcebcc5b492d4a1"
+  });
+  const auth = getAuth(app);
+  const db   = getFirestore(app, "ai-studio-5f4b0894-d347-4a7d-96ee-f82f19773590");
+
+  // Auth state observer
+  onAuthStateChanged(auth, async (user) => {
+    const guestEl  = document.getElementById('nav-guest');
+    const userEl   = document.getElementById('nav-user');
+    const mGuestEl = document.getElementById('mobile-nav-guest');
+    const mUserEl  = document.getElementById('mobile-nav-user');
+    if (user) {
+      let displayName = user.email;
+      try {
+        const snap = await getDoc(doc(db, 'users', user.uid));
+        if (snap.exists()) displayName = snap.data().name || user.email;
+      } catch(e) {}
+      document.getElementById('nav-username').textContent = displayName + '님';
+      document.getElementById('mobile-username').textContent = displayName + '님';
+      guestEl.style.display  = 'none';
+      userEl.style.display   = 'flex';
+      mGuestEl.style.display = 'none';
+      mUserEl.style.display  = 'block';
+    } else {
+      guestEl.style.display  = 'flex';
+      userEl.style.display   = 'none';
+      mGuestEl.style.display = 'block';
+      mUserEl.style.display  = 'none';
+    }
+  });
+
+  window.handleLogin = async function(e) {
+    e.preventDefault();
+    const btn   = document.getElementById('login-submit');
+    const errEl = document.getElementById('login-error');
+    const email    = document.getElementById('login-email').value;
+    const password = document.getElementById('login-password').value;
+    btn.disabled = true; btn.textContent = '로그인 중...';
+    errEl.style.display = 'none';
+    try {
+      await signInWithEmailAndPassword(auth, email, password);
+      window.closeModal('login');
+      document.getElementById('login-form').reset();
+    } catch(err) {
+      let msg = '이메일 또는 비밀번호가 일치하지 않습니다.';
+      if (err.code === 'auth/too-many-requests') msg = '너무 많은 시도가 있었습니다. 잠시 후 다시 시도해 주세요.';
+      else if (err.code && !['auth/user-not-found','auth/wrong-password','auth/invalid-credential'].includes(err.code))
+        msg = '로그인 오류: ' + (err.code || err.message);
+      errEl.textContent = msg; errEl.style.display = 'block';
+    } finally {
+      btn.disabled = false; btn.textContent = '로그인';
+    }
+  };
+
+  window.handleSignUp = async function(e) {
+    e.preventDefault();
+    const btn   = document.getElementById('signup-submit');
+    const errEl = document.getElementById('signup-error');
+    const name       = document.getElementById('signup-name').value;
+    const hospital   = document.getElementById('signup-hospital').value;
+    const memberType = document.getElementById('signup-member-type').value;
+    const email      = document.getElementById('signup-email').value;
+    const password   = document.getElementById('signup-password').value;
+    if (password.length < 8) {
+      errEl.textContent = '비밀번호는 8자 이상이어야 합니다.';
+      errEl.style.display = 'block'; return;
+    }
+    btn.disabled = true; btn.textContent = '가입 처리 중...';
+    errEl.style.display = 'none';
+    try {
+      const cred = await createUserWithEmailAndPassword(auth, email, password);
+      // Firestore 프로필 저장 (실패해도 가입 자체는 성공)
+      try {
+        await setDoc(doc(db, 'users', cred.user.uid), {
+          uid: cred.user.uid, email, name, hospital, memberType,
+          role: email.toLowerCase() === 'jskjsk20157@gmail.com' ? 'admin' : 'user',
+          createdAt: serverTimestamp()
+        });
+      } catch(fsErr) { console.warn('Firestore save failed:', fsErr); }
+      window.closeModal('signup');
+      document.getElementById('signup-form').reset();
+    } catch(err) {
+      let msg = '회원가입 중 오류가 발생했습니다.';
+      if (err.code === 'auth/email-already-in-use') msg = '이미 사용 중인 이메일입니다. 로그인해 주세요.';
+      else if (err.code === 'auth/weak-password')   msg = '비밀번호가 너무 취약합니다. 6자 이상 입력해 주세요.';
+      else if (err.code === 'auth/invalid-email')   msg = '유효하지 않은 이메일 형식입니다.';
+      else if (err.code === 'auth/operation-not-allowed') msg = '이메일/비밀번호 가입이 비활성화 상태입니다. Firebase 콘솔에서 활성화해 주세요.';
+      else msg = '회원가입 오류: ' + (err.code || err.message);
+      errEl.textContent = msg; errEl.style.display = 'block';
+    } finally {
+      btn.disabled = false; btn.textContent = '가입 신청하기';
+    }
+  };
+
+  window.handleLogout = async function() {
+    await signOut(auth);
+    window.showPage('home');
+  };
+
+// ── PAGE ROUTING ──
+  const pages = ['home','about','news','calendar','faq','contact'];
+  let currentPage = 'home';
+
+  window.showPage = function(name) {
+    pages.forEach(p => {
+      document.getElementById('page-' + p).classList.toggle('active', p === name);
+    });
+    document.querySelectorAll('nav.desktop a[data-page]').forEach(a => {
+      a.classList.toggle('active', a.dataset.page === name);
+    });
+    currentPage = name;
+    window.scrollTo({ top: 0, behavior: 'instant' });
+  };
+
+  // ── HEADER SCROLL ──
+  const header = document.getElementById('header');
+  window.addEventListener('scroll', () => {
+    header.classList.toggle('scrolled', window.scrollY > 20);
+    document.getElementById('fab').classList.toggle('visible', window.scrollY > 300);
+  });
+
+  // ── MOBILE NAV ──
+  let mobileOpen = false;
+  window.toggleMobile = function() {
+    mobileOpen = !mobileOpen;
+    document.getElementById('mobile-nav').classList.toggle('open', mobileOpen);
+    document.getElementById('burger-open').style.display  = mobileOpen ? 'none' : 'block';
+    document.getElementById('burger-close').style.display = mobileOpen ? 'block' : 'none';
+  };
+  window.closeMobile = function() {
+    mobileOpen = false;
+    document.getElementById('mobile-nav').classList.remove('open');
+    document.getElementById('burger-open').style.display  = 'block';
+    document.getElementById('burger-close').style.display = 'none';
+  };
+
+  // ── FAQ ACCORDION ──
+  window.toggleFaq = function(btn) {
+    const item = btn.closest('.faq-item');
+    const isOpen = item.classList.contains('open');
+    document.querySelectorAll('.faq-item.open').forEach(el => el.classList.remove('open'));
+    if (!isOpen) item.classList.add('open');
+  };
+
+  // ── CONTACT FORM ──
+  window.submitForm = function(e) {
+    e.preventDefault();
+    const btn = document.getElementById('submit-btn');
+    btn.disabled = true;
+    btn.textContent = '전송 중...';
+    setTimeout(() => {
+      document.getElementById('contact-form').style.display = 'none';
+      document.getElementById('form-success').classList.add('show');
+    }, 1500);
+  };
+  window.resetForm = function() {
+    document.getElementById('contact-form').reset();
+    document.getElementById('contact-form').style.display = '';
+    document.getElementById('form-success').classList.remove('show');
+    const btn = document.getElementById('submit-btn');
+    btn.disabled = false;
+    btn.innerHTML = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" style="width:20px;height:20px"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg> 문의 제출하기`;
+  };
+
+  // ── MODALS ──
+  window.openModal = function(name) {
+    document.getElementById('modal-' + name).classList.add('open');
+    document.body.style.overflow = 'hidden';
+  };
+  window.closeModal = function(name) {
+    document.getElementById('modal-' + name).classList.remove('open');
+    document.body.style.overflow = '';
+  };
+  window.closeModalOutside = function(e, name) {
+    if (e.target === document.getElementById('modal-' + name)) window.closeModal(name);
+  };
+  document.addEventListener('keydown', e => {
+    if (e.key === 'Escape') ['login','signup'].forEach(n => window.closeModal(n));
+  });
+
+  // ── RESPONSIVE NAV HIDE ──
+  function checkBurger() {
+    const isMobile = window.innerWidth < 1024;
+    document.querySelector('nav.desktop').style.display = isMobile ? 'none' : 'flex';
+    document.getElementById('burger').style.display = isMobile ? 'block' : 'none';
+  }
+  checkBurger();
+  window.addEventListener('resize', checkBurger);
+</script>
+</body>
+</html>
