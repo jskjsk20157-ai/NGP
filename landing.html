@@ -1210,6 +1210,7 @@
            signInWithEmailAndPassword,
            createUserWithEmailAndPassword,
            sendEmailVerification,
+           updateProfile,
            signOut }                                from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js';
   import { getFirestore, doc, setDoc,
            getDoc, serverTimestamp }                from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js';
@@ -1232,11 +1233,7 @@
     const mGuestEl = document.getElementById('mobile-nav-guest');
     const mUserEl  = document.getElementById('mobile-nav-user');
     if (user && user.emailVerified) {
-      let displayName = user.email;
-      try {
-        const snap = await getDoc(doc(db, 'users', user.uid));
-        if (snap.exists()) displayName = snap.data().name || user.email;
-      } catch(e) {}
+      let displayName = user.displayName || user.email;
       document.getElementById('nav-username').textContent = displayName + '님';
       document.getElementById('mobile-username').textContent = displayName + '님';
       guestEl.style.display  = 'none';
@@ -1299,6 +1296,8 @@
     errEl.style.display = 'none';
     try {
       const cred = await createUserWithEmailAndPassword(auth, email, password);
+      // Auth에 이름 저장
+      await updateProfile(cred.user, { displayName: name });
       // 이메일 인증 발송
       await sendEmailVerification(cred.user);
       // Firestore 프로필 저장 (실패해도 가입 자체는 성공)
