@@ -1233,7 +1233,14 @@
     const mGuestEl = document.getElementById('mobile-nav-guest');
     const mUserEl  = document.getElementById('mobile-nav-user');
     if (user && user.emailVerified) {
-      let displayName = user.displayName || user.email;
+      let displayName = user.displayName;
+      if (!displayName) {
+        try {
+          const snap = await getDoc(doc(db, 'users', user.uid));
+          if (snap.exists()) displayName = snap.data().name;
+        } catch(e) {}
+      }
+      displayName = displayName || user.email;
       document.getElementById('nav-username').textContent = displayName + '님';
       document.getElementById('mobile-username').textContent = displayName + '님';
       guestEl.style.display  = 'none';
@@ -1265,6 +1272,15 @@
         errEl.style.display = 'block';
         btn.disabled = false; btn.textContent = '로그인';
         return;
+      }
+      // displayName 없으면 Firestore에서 가져와서 업데이트
+      if (!cred.user.displayName) {
+        try {
+          const snap = await getDoc(doc(db, 'users', cred.user.uid));
+          if (snap.exists() && snap.data().name) {
+            await updateProfile(cred.user, { displayName: snap.data().name });
+          }
+        } catch(e) {}
       }
       window.closeModal('login');
       document.getElementById('login-form').reset();
