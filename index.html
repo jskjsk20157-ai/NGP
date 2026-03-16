@@ -672,6 +672,39 @@
     /* Smooth nav highlight */
     nav.desktop a.active { color: var(--teal); }
 
+    /* ── MYPAGE ── */
+    #page-mypage { padding: 60px 0 96px; min-height: 80vh; }
+    .mypage-wrap { max-width: 680px; margin: 0 auto; padding: 0 24px; }
+    .mypage-title { font-size: 32px; font-weight: 900; color: var(--blue); margin-bottom: 8px; }
+    .mypage-subtitle { color: var(--slate-500); margin-bottom: 40px; }
+    .mypage-card { background: #fff; border-radius: 20px; border: 1px solid var(--slate-100); box-shadow: 0 2px 12px rgba(0,0,0,.06); overflow: hidden; margin-bottom: 24px; }
+    .mypage-card-header { padding: 20px 28px; border-bottom: 1px solid var(--slate-100); display: flex; justify-content: space-between; align-items: center; }
+    .mypage-card-header h3 { font-size: 16px; font-weight: 900; color: var(--slate-800); }
+    .mypage-card-body { padding: 28px; }
+    .profile-row { display: flex; align-items: center; padding: 14px 0; border-bottom: 1px solid var(--slate-50); }
+    .profile-row:last-child { border-bottom: none; }
+    .profile-label { width: 120px; font-size: 13px; font-weight: 800; color: var(--slate-500); flex-shrink: 0; }
+    .profile-value { font-size: 15px; font-weight: 700; color: var(--slate-800); }
+    .btn-edit-toggle { padding: 6px 16px; background: none; border: 1.5px solid var(--slate-200); border-radius: 8px; font-family: inherit; font-size: 13px; font-weight: 800; color: var(--slate-600); cursor: pointer; transition: all .2s; }
+    .btn-edit-toggle:hover { border-color: var(--teal); color: var(--teal); }
+    .mypage-form { display: none; }
+    .mypage-form.open { display: block; }
+    .mypage-form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+    .mypage-form-group { display: flex; flex-direction: column; gap: 6px; }
+    .mypage-form-group.full { grid-column: 1/-1; }
+    .mypage-form-group label { font-size: 13px; font-weight: 800; color: var(--slate-600); }
+    .mypage-form-group input,
+    .mypage-form-group select { padding: 10px 14px; border: 1px solid var(--slate-200); border-radius: 10px; font-family: inherit; font-size: 14px; outline: none; transition: border-color .2s; }
+    .mypage-form-group input:focus,
+    .mypage-form-group select:focus { border-color: var(--teal); }
+    .mypage-form-actions { display: flex; gap: 10px; margin-top: 20px; }
+    .btn-save { padding: 10px 24px; background: var(--teal); color: #fff; border: none; border-radius: 10px; font-family: inherit; font-size: 14px; font-weight: 800; cursor: pointer; transition: opacity .2s; }
+    .btn-save:hover { opacity: .85; }
+    .btn-cancel { padding: 10px 20px; background: var(--slate-100); color: var(--slate-600); border: none; border-radius: 10px; font-family: inherit; font-size: 14px; font-weight: 800; cursor: pointer; }
+    .mypage-msg { margin-top: 12px; font-size: 13px; font-weight: 700; padding: 10px 14px; border-radius: 8px; display: none; }
+    .mypage-msg.success { background: #dcfce7; color: #16a34a; display: block; }
+    .mypage-msg.error   { background: #fee2e2; color: #dc2626; display: block; }
+
     /* ── ADMIN MODE ── */
     body.admin-mode #header,
     body.admin-mode footer,
@@ -797,7 +830,7 @@
           <button class="btn-signup" onclick="openModal('signup')">Sign Up</button>
         </div>
         <div id="nav-user" style="display:none; align-items:center; gap:12px;">
-          <span id="nav-username" style="font-size:14px;font-weight:800;color:var(--slate-800);"></span>
+          <span id="nav-username" onclick="showPage('mypage')" style="font-size:14px;font-weight:800;color:var(--slate-800);cursor:pointer;text-decoration:underline;text-underline-offset:3px;"></span>
           <button onclick="handleLogout()" style="padding:8px 16px;background:var(--slate-100);color:var(--slate-600);border:none;border-radius:10px;font-family:inherit;font-size:14px;font-weight:700;cursor:pointer;transition:background .2s;" onmouseover="this.style.background='#fee2e2';this.style.color='#ef4444'" onmouseout="this.style.background='var(--slate-100)';this.style.color='var(--slate-600)'">로그아웃</button>
         </div>
       </div>
@@ -1207,6 +1240,86 @@
       </div>
     </section>
   </div>
+  <!-- ══ MYPAGE ══ -->
+  <div class="page" id="page-mypage">
+    <section id="page-mypage-inner">
+      <div class="mypage-wrap">
+        <h1 class="mypage-title">마이페이지</h1>
+        <p class="mypage-subtitle">내 프로필 정보를 확인하고 수정할 수 있습니다.</p>
+
+        <!-- 프로필 조회/수정 -->
+        <div class="mypage-card">
+          <div class="mypage-card-header">
+            <h3>프로필 정보</h3>
+            <button class="btn-edit-toggle" onclick="toggleProfileEdit()">수정하기</button>
+          </div>
+          <div class="mypage-card-body">
+            <!-- 조회 -->
+            <div id="profile-view">
+              <div class="profile-row"><span class="profile-label">이름</span><span class="profile-value" id="pv-name">-</span></div>
+              <div class="profile-row"><span class="profile-label">이메일</span><span class="profile-value" id="pv-email">-</span></div>
+              <div class="profile-row"><span class="profile-label">소속 병원</span><span class="profile-value" id="pv-hospital">-</span></div>
+              <div class="profile-row"><span class="profile-label">회원 유형</span><span class="profile-value" id="pv-membertype">-</span></div>
+            </div>
+            <!-- 수정 폼 -->
+            <form class="mypage-form" id="profile-form" onsubmit="saveProfile(event)">
+              <div class="mypage-form-grid">
+                <div class="mypage-form-group">
+                  <label>이름</label>
+                  <input type="text" id="edit-name" required />
+                </div>
+                <div class="mypage-form-group">
+                  <label>소속 병원</label>
+                  <input type="text" id="edit-hospital" />
+                </div>
+                <div class="mypage-form-group full">
+                  <label>회원 유형</label>
+                  <select id="edit-membertype">
+                    <option value="">선택</option>
+                    <option value="전공의">전공의 (레지던트)</option>
+                    <option value="전문의">전문의</option>
+                    <option value="기자">기자</option>
+                    <option value="기타">기타</option>
+                  </select>
+                </div>
+              </div>
+              <div class="mypage-form-actions">
+                <button type="submit" class="btn-save">저장하기</button>
+                <button type="button" class="btn-cancel" onclick="toggleProfileEdit()">취소</button>
+              </div>
+              <div class="mypage-msg" id="profile-msg"></div>
+            </form>
+          </div>
+        </div>
+
+        <!-- 비밀번호 변경 -->
+        <div class="mypage-card">
+          <div class="mypage-card-header">
+            <h3>비밀번호 변경</h3>
+          </div>
+          <div class="mypage-card-body">
+            <form onsubmit="changePassword(event)">
+              <div class="mypage-form-grid">
+                <div class="mypage-form-group full">
+                  <label>새 비밀번호 (8자 이상)</label>
+                  <input type="password" id="new-password" placeholder="새 비밀번호" required />
+                </div>
+                <div class="mypage-form-group full">
+                  <label>새 비밀번호 확인</label>
+                  <input type="password" id="new-password-confirm" placeholder="비밀번호 재입력" required />
+                </div>
+              </div>
+              <div class="mypage-form-actions">
+                <button type="submit" class="btn-save">변경하기</button>
+              </div>
+              <div class="mypage-msg" id="pw-msg"></div>
+            </form>
+          </div>
+        </div>
+      </div>
+    </section>
+  </div>
+
   <!-- ══ ADMIN ══ -->
   <div class="page" id="page-admin">
     <div class="admin-layout">
@@ -1632,13 +1745,98 @@
     }
   };
 
+  // ── MYPAGE ──
+  window.showPage = (function(original) {
+    return function(name) {
+      original(name);
+      if (name === 'mypage') loadMyProfile();
+    };
+  })(window.showPage);
+
+  async function loadMyProfile() {
+    const user = auth.currentUser;
+    if (!user) return;
+    document.getElementById('pv-email').textContent = user.email;
+    document.getElementById('pv-name').textContent = user.displayName || '-';
+    try {
+      const snap = await getDoc(doc(db, 'users', user.uid));
+      if (snap.exists()) {
+        const d = snap.data();
+        document.getElementById('pv-name').textContent       = d.name || user.displayName || '-';
+        document.getElementById('pv-hospital').textContent  = d.hospital || '-';
+        document.getElementById('pv-membertype').textContent = d.memberType || '-';
+        document.getElementById('edit-name').value       = d.name || user.displayName || '';
+        document.getElementById('edit-hospital').value   = d.hospital || '';
+        document.getElementById('edit-membertype').value = d.memberType || '';
+      }
+    } catch(e) {}
+  }
+
+  window.toggleProfileEdit = function() {
+    const form = document.getElementById('profile-form');
+    form.classList.toggle('open');
+    document.getElementById('profile-view').style.display =
+      form.classList.contains('open') ? 'none' : 'block';
+    document.getElementById('profile-msg').className = 'mypage-msg';
+  };
+
+  window.saveProfile = async function(e) {
+    e.preventDefault();
+    const user = auth.currentUser;
+    const name       = document.getElementById('edit-name').value;
+    const hospital   = document.getElementById('edit-hospital').value;
+    const memberType = document.getElementById('edit-membertype').value;
+    const msgEl = document.getElementById('profile-msg');
+    try {
+      await updateProfile(user, { displayName: name });
+      await setDoc(doc(db, 'users', user.uid), { name, hospital, memberType }, { merge: true });
+      document.getElementById('pv-name').textContent       = name;
+      document.getElementById('pv-hospital').textContent  = hospital || '-';
+      document.getElementById('pv-membertype').textContent = memberType || '-';
+      document.getElementById('nav-username').textContent  = name + '님';
+      msgEl.textContent = '저장됐습니다.';
+      msgEl.className = 'mypage-msg success';
+      setTimeout(() => window.toggleProfileEdit(), 1200);
+    } catch(err) {
+      msgEl.textContent = '저장 실패: ' + (err.message || err.code);
+      msgEl.className = 'mypage-msg error';
+    }
+  };
+
+  window.changePassword = async function(e) {
+    e.preventDefault();
+    const pw  = document.getElementById('new-password').value;
+    const pw2 = document.getElementById('new-password-confirm').value;
+    const msgEl = document.getElementById('pw-msg');
+    if (pw.length < 8) {
+      msgEl.textContent = '비밀번호는 8자 이상이어야 합니다.';
+      msgEl.className = 'mypage-msg error'; return;
+    }
+    if (pw !== pw2) {
+      msgEl.textContent = '비밀번호가 일치하지 않습니다.';
+      msgEl.className = 'mypage-msg error'; return;
+    }
+    try {
+      const { updatePassword } = await import('https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js');
+      await updatePassword(auth.currentUser, pw);
+      e.target.reset();
+      msgEl.textContent = '비밀번호가 변경됐습니다.';
+      msgEl.className = 'mypage-msg success';
+    } catch(err) {
+      let msg = '변경 실패: ' + (err.code || err.message);
+      if (err.code === 'auth/requires-recent-login') msg = '보안을 위해 재로그인 후 다시 시도해 주세요.';
+      msgEl.textContent = msg;
+      msgEl.className = 'mypage-msg error';
+    }
+  };
+
   window.handleLogout = async function() {
     await signOut(auth);
     window.showPage('home');
   };
 
 // ── PAGE ROUTING ──
-  const pages = ['home','about','news','calendar','faq','contact','admin'];
+  const pages = ['home','about','news','calendar','faq','contact','admin','mypage'];
   let currentPage = 'home';
 
   window.showPage = function(name) {
